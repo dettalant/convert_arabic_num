@@ -2,7 +2,7 @@
   "name": "convert_arabic_num",
   "version": "0.1.0",
   "main": "./dist/index.js",
-  "typings": "./dist/types/index.d.ts",
+  "types": "./dist/types/index.d.ts",
   "license": "MIT",
   "private": true,
   "scripts": {
