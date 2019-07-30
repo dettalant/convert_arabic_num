@@ -40,7 +40,7 @@ export default {
   input: "./src/index.ts",
   output: {
     file: fileName + ".js",
-    format: "esm",
+    format: "umd",
     name: scriptArgs.name,
     banner: bannerComment,
     sourceMap: "inline",
