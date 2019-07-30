@@ -1,7 +1,7 @@
 {
   "name": "convert_arabic_num",
   "version": "0.1.0",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "license": "MIT",
   "private": true,
   "scripts": {
