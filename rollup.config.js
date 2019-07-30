@@ -1,5 +1,4 @@
 import typescript from "rollup-plugin-typescript2";
-//import buble from "rollup-plugin-buble";
 import { uglify } from "rollup-plugin-uglify";
 
 
@@ -23,7 +22,6 @@ const plugins = [
   typescript({
     useTsconfigDeclarationDir: true
   }),
-  //buble(),
 ];
 
 let fileName = "./dist/index";

@@ -5,7 +5,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "build": "yarn run build:development",
+    "build": "yarn run build:development && yarn run build:production",
     "build:development": "rollup -c",
     "build:production": "NODE_ENV=production rollup -c",
     "test": "jest"
