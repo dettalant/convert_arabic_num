@@ -1,3 +1,4 @@
+// アラビア数字から漢数字への変換機能を提供するクラス
 export class ConvertArabicNum {
   mode: ConvertDecimalMode = "simple";
   charMode: ConvertCharMode = "modern";
@@ -15,45 +16,52 @@ export class ConvertArabicNum {
     }
   }
   /**
-   * ひとまずはパースし終えた数列テキストを処理することを目標とする。
-   * @param  text [description]
-   * @return      [description]
+   * 受け取ったテキストを算用数字の部分で分けて、
+   * 算用数字の場合は現在選択中の変換モードに合わせた処理を行い、
+   * テキストを再結合させる
+   *
+   * NOTE: mode "dictate"部分は現状作成していないので、
+   * simpleモードとして処理する
+   *
+   * @param  text 受け取る元テキスト
+   * @return      変換後テキスト
    */
-  convert(text: string): string {
-    if (this.mode === "verbose") {
+  public convert(text: string): string {
+    // "123,456.789"といった文字列とマッチする正規表現
+    const regex = /((?:[\d]+[\.,]?)+)/g;
 
-    } else if (this.mode === "moderate") {
+    // 数字文字列とそれ以外の文字列の配列として切り分ける
+    const strArray = text.split(regex);
 
-    } else if (this.mode === "dictate") {
+    // 変換結果として出力するテキスト
+    let result = "";
 
-    } else {
-      // mode simple
+    for (let str of strArray) {
+      const isNumStr = regex.test(str);
 
+      if (!isNumStr) {
+        // 非数字文字列の場合は結合して早期終了
+        result += str;
+        continue;
+      }
+
+      // 数字テキストからコンマを除去
+      str = this.removeComma(str);
+
+      if (this.mode === "verbose") {
+        str = this.convert_verbose(str);
+      } else if (this.mode === "moderate") {
+        str = this.convert_moderate(str);
+      } else {
+        // mode simple
+        str = this.convert_simple(str);
+      }
+
+      result += str;
     }
 
-    return text;
+    return result;
   }
-
-
-  // convert_tmp(text: string): string {
-  //   const numStrArray = text.split(/([,.])/)
-  //   const loopLen = numStrArray.length;
-  //   let result = "";
-  //   for (let i = 0; i < loopLen; i++) {
-  //     const numStr = numStrArray[i];
-  //     if (numStr === ",") {
-  //       // カンマであった場合は次周回へ
-  //       continue;
-  //     } else if (numStr === ".") {
-  //       // 小数点数字であった場合は中黒を結果文字列に足す
-  //       result += "・";
-  //       continue;
-  //     }
-  //
-  //
-  //   }
-  //   return text;
-  // }
 
   /**
    * 主に`123456.789`のような数字のみのstringを受け取って、
@@ -65,9 +73,10 @@ export class ConvertArabicNum {
     const replaceMap = (this.charMode === "retro") ? this.retroCharMap : this.modernCharMap;
 
     for (let [key, value] of replaceMap) {
+      // "."のエスケープ
       const matchStr = (key === ".") ? "\." : key;
-
       const regex = new RegExp("[" + matchStr + "]", "g");
+
       text = text.replace(regex, value);
     }
 
@@ -98,7 +107,14 @@ export class ConvertArabicNum {
     for (let i = 0; i < intStrLen; i++) {
       // 後ろからテキストを結合していくので、
       // 最大値から下がっていく反転インデックス数値を生成
-      const reverseIdx = intStrLen - i - 1;
+      const reverseIdx = (intStrLen - 1) - i;
+      let intChar = intStrArray[reverseIdx];
+
+      if (intChar === "0") {
+        // その周回での文字が"0"の場合は処理スキップ
+        continue;
+      }
+
       const verboseUnitIdx = i % verboseUnitsArrayLen;
       const verboseUnitStr = verboseUnitsArray[verboseUnitIdx];
 
@@ -107,8 +123,14 @@ export class ConvertArabicNum {
         ? moderateUnitsArray[Math.floor((i - 4) / 4) % moderateUnitsArrayLen]
         : "";
 
+      if (intChar === "1" && i !== 0 && moderateUnitStr === "") {
+        // その周回での文字が"1"であり、ひと桁目の数字ではなく、また万進の単位名がつかない桁なら、
+        // 十、百、千のみをつけて一は除外する
+        intChar = "";
+      }
+
       // 後ろから結合していく
-      result = intStrArray[reverseIdx] + verboseUnitStr + moderateUnitStr + result;
+      result = intChar + verboseUnitStr + moderateUnitStr + result;
     }
 
     if (splitStrArray.length > 1) {
@@ -159,7 +181,7 @@ export class ConvertArabicNum {
 
         // ループ一周目では単位を付け足さない
         const insertUnitStr = (i !== 0)
-        // もし無量大数以上の数値になったら万に戻して無限ループさせる
+          // もし無量大数以上の数値になったら万に戻して無限ループさせる
           ? unitsArray[(i - 1) % unitsArrayLen]
           : "";
 
@@ -202,8 +224,6 @@ export class ConvertArabicNum {
       ["0", "〇"],
       // 小数点は中黒にする
       [".", "・"],
-      // カンマは空白（除去するのみ）
-      [",", ""],
     ])
   }
 
@@ -226,8 +246,11 @@ export class ConvertArabicNum {
       ["0", "零"],
       // 小数点は中黒にする
       [".", "・"],
-      // カンマは空白（除去するのみ）
-      [",", ""],
+      // 十、百、千、万も大字に変換する
+      ["十", "拾"],
+      ["百", "佰"],
+      ["千", "仟"],
+      ["万", "萬"],
     ])
   }
 
@@ -272,8 +295,14 @@ export class ConvertArabicNum {
     ]
   }
 
-  splitAtDot(text: string): string[] {
-    return text.split(/(\.)/);
+  /**
+   * 文字列からコンマを除去する
+   * @param  text 元テキスト
+   * @return      変換後のテキスト
+   */
+  removeComma(text: string): string {
+    const regex = /[,]/g;
+    return text.replace(regex, "");
   }
 }
 
@@ -283,7 +312,7 @@ export class ConvertArabicNum {
  * + verbose: 詳細な命数法として単位表示
  * + simple: 数字をそのまま漢数字にするだけで単位はつけない
  * + moderate: 万以上の単位から記述する
- * + dictate: 基本的にverboseと同じだが、ゼロについては「〜〜とんで」と表記する
+ * + dictate: 基本的にverboseと同じだが、ゼロについては「〜〜とんで」と表記する（未実装）
  */
 export type ConvertDecimalMode = "verbose" | "simple" | "moderate" | "dictate";
 
