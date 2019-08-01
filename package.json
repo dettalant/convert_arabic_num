@@ -1,8 +1,8 @@
 {
   "name": "convert_arabic_num",
   "version": "0.1.0",
-  "main": "./dist/index.js",
-  "types": "./dist/types/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/types/index.d.ts",
   "license": "MIT",
   "private": true,
   "scripts": {
