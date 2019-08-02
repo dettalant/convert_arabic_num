@@ -1,4 +1,4 @@
-import { ConvertArabicNum } from "#/index";
+import ConvertArabicNum from "./index";
 
 describe("convert arabic num", () => {
   const convertArabicNum = new ConvertArabicNum();

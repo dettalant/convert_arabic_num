@@ -1,5 +1,5 @@
 // アラビア数字から漢数字への変換機能を提供するクラス
-export class ConvertArabicNum {
+export default class ConvertArabicNum {
   mode: ConvertDecimalMode = "simple";
   charMode: ConvertCharMode = "modern";
   constructor(initArgs?: ConvertArabicNumInitArgs) {

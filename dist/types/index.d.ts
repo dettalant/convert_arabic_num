@@ -1,4 +1,4 @@
-export declare class ConvertArabicNum {
+export default class ConvertArabicNum {
     mode: ConvertDecimalMode;
     charMode: ConvertCharMode;
     constructor(initArgs?: ConvertArabicNumInitArgs);
